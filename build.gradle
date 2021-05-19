@@ -1,0 +1,88 @@
+buildscript {
+  repositories { jcenter() }
+  dependencies {
+    
+  }
+
+}
+
+plugins {
+    id 'com.jfrog.bintray' version '1.2'
+}
+ 
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'com.morpheusdata.jruby'
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+repositories { jcenter() }
+
+sourceSets {
+    main {
+        resources {
+            srcDir 'src/main/gems'
+        }
+    }
+}
+
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+}
+dependencies {
+    compile 'org.jruby:jruby:9.2.11.0'
+    compile 'org.yaml:snakeyaml:1.18'
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId 'jruby-winrm'
+            pom.withXml {
+                asNode().children().last() + {
+                    resolveStrategy = Closure.DELEGATE_FIRST
+                    name 'jruby-winrm'
+                    description 'JVM Asset Pipeline Gradle Spring Boot Adapter.'
+                    url 'https://github.com/bertramdev/morpheus-ui'
+                    scm {
+                        url 'https://github.com/bertramdev/morpheus-ui'
+                        connection 'scm:https://github.com/bertramdev/morpheus-ui.git'
+                        developerConnection 'scm:git://github.com/bertramdev/morpheus-ui.git'
+                    }
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/license/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id 'davydotcom'
+                            name 'David Estes'
+                            email 'davydotcom@gmail.com'
+                        }
+                    }
+                }
+            }
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username project.properties.get('artifactoryPublishUsername')
+                password project.properties.get('artifactoryPublishPassword')
+            }
+            url 'https://repo.grails.org/grails/libs-snapshots-local/'
+        }
+    }
+}
